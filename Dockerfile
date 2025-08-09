@@ -1,0 +1,67 @@
+# renovate: datasource=github-releases depName=docker-gocd-agent-ubuntu-24.04 packageName=gocd/docker-gocd-agent-ubuntu-24.04
+ARG BASE_VERSION=v25.3.0
+FROM gocd/gocd-agent-ubuntu-24.04:${BASE_VERSION}
+
+# renovate: datasource=github-releases depName=terraform packageName=hashicorp/terraform
+ARG TERRAFORM_VERSION=1.12.2
+# renovate: datasource=github-releases depName=packer packageName=hashicorp/packer
+ARG PACKER_VERSION=1.13.1
+# renovate: datasource=github-releases depName=opentofu packageName=opentofu/opentofu
+ARG TOFU_VERSION=1.10.3
+# renovate: datasource=github-releases depName=terragrunt packageName=gruntwork-io/terragrunt
+ARG TERRAGRUNT_VERSION=0.83.2
+# renovate: datasource=github-releases depName=aws_signing_helper packageName=aws/rolesanywhere-credential-helper
+ARG AWS_SIGNING_HELPER_VERSION=1.7.0
+# renovate: datasource=github-releases depName=talosctl packageName=siderolabs/talos
+ARG TALOS_VERSION=1.10.5
+# renovate: datasource=github-releases depName=tenv packageName=tofuutils/tenv
+ARG TENV_VERSION=v4.7.6
+
+ARG TARGETARCH
+ARG TARGETOS
+
+USER root
+
+WORKDIR /tmp/packer
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl jq yq wget && \
+    wget https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_${TARGETOS}_${TARGETARCH}.zip && \
+    unzip packer_${PACKER_VERSION}_${TARGETOS}_${TARGETARCH}.zip -d /usr/local/bin && \
+    rm packer_${PACKER_VERSION}_${TARGETOS}_${TARGETARCH}.zip && \
+    chmod +x /usr/local/bin/packer && \
+    case "${TARGETARCH}" in \
+      amd64)  export AWS_ARCH="X86_64"; export AWS_CLI_ARCH="x86_64" ;; \
+      arm64)  export AWS_ARCH="Aarch64"; export AWS_CLI_ARCH="aarch64"  ;; \
+      *)      echo "Unsupported architecture: ${TARGETARCH}" && exit 1 ;; \
+    esac && \
+    curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${TENV_VERSION}_${TARGETARCH}.deb" && \
+    dpkg -i "tenv_${TENV_VERSION}_${TARGETARCH}.deb" && \
+    rm "tenv_${TENV_VERSION}_${TARGETARCH}.deb" && \
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_CLI_ARCH}.zip" -f -o "awscliv2.zip" && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -rf awscliv2.zip ./aws && \
+    wget https://rolesanywhere.amazonaws.com/releases/${AWS_SIGNING_HELPER_VERSION}/${AWS_ARCH}/Linux/aws_signing_helper -O /usr/local/bin/aws_signing_helper && \
+    chmod a+x /usr/local/bin/aws_signing_helper && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/local/bin/
+
+RUN wget https://github.com/siderolabs/talos/releases/download/v${TALOS_VERSION}/talosctl-${TARGETOS}-${TARGETARCH} -O /usr/local/bin/talosctl-${TARGETOS}-${TARGETARCH} && \
+    chmod a+x /usr/local/bin/talosctl-${TARGETOS}-${TARGETARCH} && \
+    curl -L https://github.com/siderolabs/talos/releases/download/v${TALOS_VERSION}/sha512sum.txt | grep talosctl-${TARGETOS}-${TARGETARCH} | sha512sum -c - && \
+    mv /usr/local/bin/talosctl-${TARGETOS}-${TARGETARCH} /usr/local/bin/talosctl
+
+USER go
+
+ENV TENV_AUTO_INSTALL=true
+ENV TENV_ROOT=/home/go/.tenv
+
+RUN --mount=type=secret,id=TENV_GITHUB_TOKEN,env=TENV_GITHUB_TOKEN \
+    tenv tf install && \
+    tenv tg install ${TERRAGRUNT_VERSION} && \
+    tenv tofu install ${TOFU_VERSION}
+
+WORKDIR /
+
