@@ -35,7 +35,7 @@ RUN apt-get update && \
       arm64)  export AWS_ARCH="Aarch64"; export AWS_CLI_ARCH="aarch64"  ;; \
       *)      echo "Unsupported architecture: ${TARGETARCH}" && exit 1 ;; \
     esac && \
-    curl -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${TENV_VERSION}_${TARGETARCH}.deb" && \
+    curl -f -O -L "https://github.com/tofuutils/tenv/releases/latest/download/tenv_${TENV_VERSION}_${TARGETARCH}.deb" && \
     dpkg -i "tenv_${TENV_VERSION}_${TARGETARCH}.deb" && \
     rm "tenv_${TENV_VERSION}_${TARGETARCH}.deb" && \
     curl "https://awscli.amazonaws.com/awscli-exe-linux-${AWS_CLI_ARCH}.zip" -f -o "awscliv2.zip" && \
