@@ -25,7 +25,7 @@ USER root
 WORKDIR /tmp/packer
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl jq yq wget qemu-utils xz && \
+    apt-get install -y --no-install-recommends curl jq yq wget qemu-utils xz-utils && \
     wget https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_${TARGETOS}_${TARGETARCH}.zip && \
     unzip packer_${PACKER_VERSION}_${TARGETOS}_${TARGETARCH}.zip -d /usr/local/bin && \
     rm packer_${PACKER_VERSION}_${TARGETOS}_${TARGETARCH}.zip && \
