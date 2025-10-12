@@ -5,7 +5,7 @@ FROM gocd/gocd-agent-ubuntu-24.04:${BASE_VERSION}
 # renovate: datasource=github-releases depName=terraform packageName=hashicorp/terraform
 ARG TERRAFORM_VERSION=1.12.2
 # renovate: datasource=github-releases depName=packer packageName=hashicorp/packer
-ARG PACKER_VERSION=1.13.1
+ARG PACKER_VERSION=1.14.2
 # renovate: datasource=github-releases depName=opentofu packageName=opentofu/opentofu
 ARG TOFU_VERSION=1.10.6
 # renovate: datasource=github-releases depName=terragrunt packageName=gruntwork-io/terragrunt
