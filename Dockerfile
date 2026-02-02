@@ -1,5 +1,5 @@
 # renovate: datasource=github-releases depName=docker-gocd-agent-ubuntu-24.04 packageName=gocd/docker-gocd-agent-ubuntu-24.04
-ARG BASE_VERSION=v25.3.0
+ARG BASE_VERSION=v25.4.0
 FROM gocd/gocd-agent-ubuntu-24.04:${BASE_VERSION}
 
 # renovate: datasource=github-releases depName=terraform packageName=hashicorp/terraform
