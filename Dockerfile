@@ -15,7 +15,7 @@ ARG AWS_SIGNING_HELPER_VERSION=1.7.0
 # renovate: datasource=github-releases depName=talosctl packageName=siderolabs/talos
 ARG TALOS_VERSION=1.11.2
 # renovate: datasource=github-releases depName=tenv packageName=tofuutils/tenv
-ARG TENV_VERSION=v4.7.21
+ARG TENV_VERSION=v4.12.2
 
 ARG TARGETARCH
 ARG TARGETOS
